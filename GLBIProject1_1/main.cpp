@@ -14,10 +14,10 @@ GLfloat vertices[] = {
 };
 
 
-int main() {
-	hellowindow();
-	return 0;
-}
+//int main() {
+//	hellowindow();
+//	return 0;
+//}
 
 int hellowindow(){
 	std::cout << "HELLO! WINDOW";
