@@ -4,13 +4,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\OpenGLPersetVertexShader.gls">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="shader\OpenGLPersetVertexShader(simple).gls">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="shader\OpenGLPersetFragmentShader.gls">
       <Filter>shaders</Filter>
     </None>
     <None Include="shader\OpenGLPersetFragmentShader(simple).gls">
@@ -21,5 +15,8 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{06f3bdae-a33b-471a-8729-256130277b07}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="version.txt" />
   </ItemGroup>
 </Project>

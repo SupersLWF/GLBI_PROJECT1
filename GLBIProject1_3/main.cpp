@@ -12,19 +12,36 @@ GLfloat vertices[] = {
 	0.5f,  -0.5f,  0.0f,		// 1
 	0.0f,   0.5f,  0.0f,		// 2
 	//逆时针排点					
-	0.5f,  -0.5f,  0.0f,		
-	0.0f,   0.5f,  0.0f,		
-	0.8f,   0.8f,  0.0f			// 3  ，为点标号后，发现除重复点外，只有四个非重复点
-	//顺时针排点，
-
-	//按照逆时针的绘制方式将画不出来图形
+	//0.5f,  -0.5f,  0.0f,		// 1，重复
+	//0.0f,   0.5f,  0.0f,		// 2，重复
+	0.8f,   0.8f,  0.0f			// 3  ，为点标号后，发现除重复点外，只有四个非重复点，显然，要绘制这两个三角形，只传输这4个点的数据就够了，
+	//顺时针排点，					  //不过显然，只有这四个点的数据还是不够的，因为接下来要绘图的OpenGL函数，以及配套参数只能绘制三角形，因此
+									  //我们还得给这四个点分组，并告诉OpenGL要画的两组三角形的点 是哪两组。 
+									  //如此，就要用到EBO（ELEMENT BUFFER OBJECT,也称IBO: INDEX BUFFER OBJECT）了。
+									
+	//顺时针排点，按照逆时针的绘制方式，绘出来的就是背面
 
 };//三角形的缺省绘制是按照逆时针绘点
 
-//int main() {
-//	hellowindow();
-//	return 0;
-//}
+GLuint indices[] = {
+	0,  1,  2,
+	2,  1,  3
+};//逆时针排点，逆时针绘点，正面
+//使用EBO前，可以提供对应点的索引值
+
+//GLuint indices[] = {
+//	0,  1,  2,
+//	2,  1,  3
+//};
+
+
+
+
+
+int main() {
+	hellowindow();
+	return 0;
+}
 
 int hellowindow(){
 	std::cout << "HELLO! WINDOW";
@@ -53,6 +70,7 @@ int hellowindow(){
 	//glEnable(GL_CULL_FACE);//面剔除功能开启
 	//glCullFace(GL_BACK);//去除背面，也就是顺时针排点画出的图形
 	//glCullFace(GL_FRONT);//去除正面
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);勾边函数，面剔除功能会影响勾边。
 
 
 	glewExperimental = true;
@@ -81,6 +99,24 @@ int hellowindow(){
 
 	//将模型数据（此处仅有三点）暂存到 GL_ARRAY_BUFFER绑定的VBO 指向的一段数据缓冲区中。
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	//使用标签EBO 创建一个EBO（） 
+	GLuint EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//使用宏 GL_ELEMENT_ARRAY_BUFFER 将EBO标签指向的缓存 定义到VAO的对应栏位上。
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -136,14 +172,14 @@ int hellowindow(){
 
 	glVertexAttribPointer(15, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
 	//此处函数即是用于处理： 
-	//		挖掘 利用 GL_ARRAY_BUFFER 传入 VBO 的VertexAttributes , 将数据指向VAO
-	//		并标注特征值，特征值范围为 [0,15]
-	//		上条代码的解析：
+	//		利用 GL_ARRAY_BUFFER 传入 VBO 的VertexAttributes , 并将其指向VAO
+	//		将GL_ARRAY_BUFFER指向的VBO 数据转移到 VAO中，并标注特征值，特征值范围为 [0,15]
+	//		上条代码作用为：
 	//				在VAO中，创建一个 以0号特征值 标注的栏位，每三份创建一份资料，
 	//				每份都是一个GL_FLOAT类型，不需要规范化到正负1（也可以选择规划到0到1，或-1到0），
 	//				挖掘间隔，本次挖掘的起始偏移量。
 	//
-	//		关于其他特征值的设置使用 详见jianghuaiyue@outlook.com -> Onenote -> OpenGL -> OpenGL基本知识 -> VAO,VBO&以及shader的简单使用流程
+	//		具体特征值设置使用 详见jianghuaiyue@outlook.com -> Onenote -> OpenGL -> OpenGL基本知识 -> VAO,VBO&以及shader的简单使用流程
 
 	glEnableVertexAttribArray(15);
 	//开启此特征值，注意，只有开启了这个特征值，之后opengl_api以及shader脚本 才能使用这个特征值，
@@ -168,7 +204,12 @@ int hellowindow(){
 		glBindVertexArray(VAO);//绑定要绘制的VAO（模型）
 		glUseProgram(shaderProgram);//绑定要使用的Program（shader）
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);//使用数据绘制三角形
+			
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//通过Elements访问VAO来绘制三角形，首个参数代表要画的是三角形，
+		//6代表顶点个数，GL_UNSIGNED_INT 代表使用的数据再VAO中的类型，0代表在VAO中的偏移值。
+		
+		//glDrawArrays(GL_TRIANGLES, 0, 6);//使用顶点数据绘制三角形
 
 		//攫取新的用户输入，以及其他事件
 		glfwPollEvents();

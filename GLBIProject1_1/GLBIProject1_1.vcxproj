@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="version.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{18BB6756-D5D5-48A8-90FC-88E72A06685D}</ProjectGuid>
